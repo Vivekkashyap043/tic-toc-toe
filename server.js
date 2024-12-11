@@ -9,6 +9,8 @@ const io = new Server(server, {
         origin: '*',
         methods: ['GET', 'POST'],
     },
+    pingInterval: 25000, // Send a ping every 25 seconds to keep the connection alive
+    pingTimeout: 60000, // Wait 60 seconds before timing out
 });
 
 const rooms = {};
@@ -43,6 +45,7 @@ io.on('connection', (socket) => {
             rooms[roomId].players.push(socket.id);
             socket.join(roomId);
             callback({ status: 'ok', roomId });
+            io.to(roomId).emit('opponent_joined'); // Notify room that opponent has joined
         }
     });
 
