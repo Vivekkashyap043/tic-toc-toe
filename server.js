@@ -11,6 +11,12 @@ const io = new Server(server, {
     }
 });
 
+// Dummy endpoint to keep the server alive
+app.get('/keep-alive', (req, res) => {
+    console.log('Ping received to keep server alive');
+    res.send({ status: 'ok', message: 'Server is active' });
+});
+
 const rooms = {};
 
 // Handle socket connection
