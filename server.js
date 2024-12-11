@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
         if (rooms[roomId]) {
             callback({ status: 'error', message: 'Room already exists' });
         } else {
-            rooms[roomId] = { players: [socket.id] };
+            rooms[roomId] = { players: [socket.id], board: Array(9).fill(null) };
             socket.join(roomId);
             callback({ status: 'ok', roomId });
         }
@@ -48,7 +48,17 @@ io.on('connection', (socket) => {
 
     socket.on('make_move', ({ roomId, index, player }) => {
         console.log(`Move made in room ${roomId}:`, { index, player });
-        socket.to(roomId).emit('move_made', { index, player });
+        if (rooms[roomId]) {
+            rooms[roomId].board[index] = player;
+            socket.to(roomId).emit('move_made', { index, player });
+        }
+    });
+
+    socket.on('reset_game', (roomId) => {
+        if (rooms[roomId]) {
+            rooms[roomId].board = Array(9).fill(null);
+            io.to(roomId).emit('game_reset');
+        }
     });
 
     socket.on('disconnect', () => {
